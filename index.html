@@ -1,18 +1,232 @@
-<html>
-     <head>
-         <meta charset="UTF-8">
-         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         <title>Document</title>
-     </head>
-     <body>
-         <h1>Porque eu quero entra na eliti ?</h1>
-         <h2>Nome:gabriel libanio <br>idade:15 anos</h2>
-         <p>bom eu quero entrar para eliti <br>
-        porque assim eu vou ter mas oportunidade <br>
-    de estudos e quero me aprofundar mas na programação e na <br>
-computação, e eu quero trabalhar nessa area de programação <br>
-porque eu sempre gostei assim de mexer ne computadores <br>
-isso vai ser muito bom na minha vida. e é por isso que eu  <br>
-gostaria de entrar para a eliti.</p>
-     </body>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha</title>
+    <style>
+        /* Estilos gerais */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg,#a100c9,#00d1c0,#0000ff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        #currentPlayer {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        #status {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            background-color: #001a70;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #001a70;
+            transform: scale(1.05);
+        }
+
+        /* Estilo da tabela */
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        td {
+            background-color: rgba(255, 255, 255, 0.6);
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            font-size: 3rem;
+            border-radius: 10px;
+            color: #333;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        td:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* Animações e efeitos */
+        td:active {
+            background-color: rgba(0, 0, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Estilo de vitória */
+        .vencedor {
+            background-color: #FFB84D !important;
+            color: #1a1a1a !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo da Velha</h1>
+    <table>
+        <tr>
+            <td onclick="marcar(this)"></td>
+            <td onclick="marcar(this)"></td>
+            <td onclick="marcar(this)"></td>
+        </tr>
+        <tr>
+            <td onclick="marcar(this)"></td>
+            <td onclick="marcar(this)"></td>
+            <td onclick="marcar(this)"></td>
+        </tr>
+        <tr>
+            <td onclick="marcar(this)"></td>
+            <td onclick="marcar(this)"></td>
+            <td onclick="marcar(this)"></td>
+        </tr>
+    </table>
+
+    <div id="status"></div>
+    <div id="currentPlayer">Jogador Atual: <span id="jogadorAtual">X</span></div>
+    <button onclick="reiniciarJogo()">Reiniciar Jogo</button>
+
+    <script>
+        var jogador = "X";
+        var tabuleiro = [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""]
+        ];
+
+        function marcar(td) {
+            var row = td.parentElement.rowIndex;
+            var col = td.cellIndex;
+
+            // Verifica se a célula já foi marcada ou se o jogo terminou
+            if (tabuleiro[row][col] !== "" || document.getElementById("status").innerText) return;
+
+            // Marca a célula
+            td.innerText = jogador;
+            tabuleiro[row][col] = jogador;
+
+            // Atualiza o jogador atual na interface
+            document.getElementById("jogadorAtual").innerText = (jogador === "X") ? "O" : "X";
+
+            // Verifica se alguém ganhou
+            if (verificarVitoria()) {
+                document.getElementById("status").innerText = "Jogador " + jogador + " venceu!";
+                document.getElementById("status").style.color = jogador === "X" ? "#ff6600" : "#ff3333";
+                desabilitarTabuleiro();
+                return;
+            }
+
+            // Verifica empate
+            if (verificarEmpate()) {
+                document.getElementById("status").innerText = "Empate!";
+                document.getElementById("status").style.color = "#ffcc00";
+                desabilitarTabuleiro();
+                return;
+            }
+
+            // Troca o jogador
+            jogador = (jogador === "X") ? "O" : "X";
+        }
+
+        function verificarVitoria() {
+            // Verifica as linhas, colunas e diagonais
+            for (let i = 0; i < 3; i++) {
+                if (tabuleiro[i][0] !== "" && tabuleiro[i][0] === tabuleiro[i][1] && tabuleiro[i][0] === tabuleiro[i][2]) {
+                    destacarVitoria(i, 0, i, 1, i, 2); // Linha vencedora
+                    return true;
+                }
+                if (tabuleiro[0][i] !== "" && tabuleiro[0][i] === tabuleiro[1][i] && tabuleiro[0][i] === tabuleiro[2][i]) {
+                    destacarVitoria(0, i, 1, i, 2, i); // Coluna vencedora
+                    return true;
+                }
+            }
+
+            // Verifica diagonais
+            if (tabuleiro[0][0] !== "" && tabuleiro[0][0] === tabuleiro[1][1] && tabuleiro[0][0] === tabuleiro[2][2]) {
+                destacarVitoria(0, 0, 1, 1, 2, 2); // Diagonal principal
+                return true;
+            }
+            if (tabuleiro[0][2] !== "" && tabuleiro[0][2] === tabuleiro[1][1] && tabuleiro[0][2] === tabuleiro[2][0]) {
+                destacarVitoria(0, 2, 1, 1, 2, 0); // Diagonal secundária
+                return true;
+            }
+
+            return false;
+        }
+
+        function verificarEmpate() {
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (tabuleiro[i][j] === "") {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function destacarVitoria(r1, c1, r2, c2, r3, c3) {
+            // Destaca as células vencedoras
+            var cells = document.querySelectorAll("td");
+            cells[r1 * 3 + c1].classList.add("vencedor");
+            cells[r2 * 3 + c2].classList.add("vencedor");
+            cells[r3 * 3 + c3].classList.add("vencedor");
+        }
+
+        function desabilitarTabuleiro() {
+            // Desabilita as células para impedir novas jogadas após o fim do jogo
+            var cells = document.querySelectorAll("td");
+            cells.forEach(function(cell) {
+                cell.style.pointerEvents = "none";
+            });
+        }
+
+        function reiniciarJogo() {
+            // Limpa a tabela e o status
+            var cells = document.querySelectorAll("td");
+            cells.forEach(function(cell) {
+                cell.innerText = "";
+                cell.style.pointerEvents = "auto";
+                cell.classList.remove("vencedor");
+            });
+
+            tabuleiro = [
+                ["", "", ""],
+                ["", "", ""],
+                ["", "", ""]
+            ];
+
+            jogador = "X";
+            document.getElementById("status").innerText = "";
+            document.getElementById("jogadorAtual").innerText = "X";
+        }
+    </script>
+</body>
 </html>
